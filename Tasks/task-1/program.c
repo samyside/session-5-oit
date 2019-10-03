@@ -16,12 +16,21 @@ int main(int argc, char const *argv[]) {
 	FILE *file_report = NULL;
 	int number_in;
 	int number_out = -1;
-	file_report = fopen("output.db", "wb+");
-	// printf("write into file: ");
-	// scanf("%d", &number_in);
-	// fwrite(&number_in, sizeof(int), 1, file_report);
-	fread(& number_out, sizeof(int), 1, file_report);
+	char * filename = "output.db";
+	file_report = fopen(filename, "wb+");
+
+	printf("number_in = ");
+	scanf("%d", &number_in);
+
+	// Запись бинарного значения в файл
+	fwrite(&number_in, sizeof(int), 1, file_report);
+	fclose(file_report);
+
+	// Чтение и вывод бинарного значения из файла
+	file_report = fopen(filename, "rb");
+	fread(&number_out, sizeof(int), 1, file_report);
 	printf("number_out = %d", number_out);
+
 	fclose(file_report);
 
 	// Открыть файл как бинарный
