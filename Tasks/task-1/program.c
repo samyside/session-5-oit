@@ -4,12 +4,19 @@
 
 #define ERROR_FILE_OPEN -3
 #define FILENAME "output.db"
+#define COUNT_BYTES 256
+#define FILE_BMP "Arh02/Pic02.bpm"
+#define FILE_JPG "Arh02/Pic02.jpg"
+#define FILE_DOC "Arh02/Text02.doc"
+#define FILE_DOCX "Arh02/Text02.docx"
+#define FILE_TXT "Arh02/Text02.txt"
 
-void write_in(FILE * file, char c) {
+void write_char(FILE * file, char c) {
 	fwrite(&c, sizeof(char), 1, file);
 }
 
 void fill_random(FILE * file, const int count) {
+	unsigned char c = 0;
 	if (file == NULL) {
 		file = fopen(FILENAME, "wb+");
 	}
@@ -32,26 +39,47 @@ unsigned char read_byte(FILE * file) {
 	return c;
 }
 
+size_t length_int(int * array) {
+	int * temp_array = array;
+	size_t length = sizeof(temp_array) / sizeof(temp_array[0]);
+	return length;
+}
+
+void show_int_array(int * array, const int count) {
+	for (int i = 0; i < count; ++i) {
+		printf("[%d]\t= %d\n", i, array[i]);
+	}
+}
+
 int main(int argc, char const *argv[]) {
 	printf("The program has started...\n");
 
 	FILE *file_report = NULL;
-	file_report = fopen(FILENAME, "wb+");
+	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
+	file_report = fopen(FILE_DOCX, "ab+");
 
 	// Запись в бинарный файл случайные значения
-	// fill_random(file, 150);
+	// fill_random(file_report, 150);
 
 	// Чтение и вывод бинарного значения из файла
-	
-	read_byte();
+	int sym = 0, count_sym = 0;
+	do {
+		sym = getc(file_report);
+		array_bytes[sym]++;
+		
+		// printf("[%d]\t= %d\n", count_sym++, sym);
+	} while(sym != EOF);
+
+	// Вывод массива
+	show_int_array(array_bytes, COUNT_BYTES);
 	
 	// Открыть файл как бинарный
 	// Считать количество байт в массив
 	// 1) Имя файла. Tip: константа
-	// 2) Получить кол-во байт в файле
-	// Сумма всех значений массива
-	// 4) Вычислить частотность байте в файле
-	// Частотность = все_байты / элемент_массива
+	// 2) all_bytes = Получить кол-во байт в файле
+	// 
+	// 4) Вычислить частотность каждого байта в файле
+	// H = array[i] / all_bytes * 100
 	// 6) Вычислить величину энтропии
 	// ???
 	// Создать отчет по обработанному файлу (File02.tab)
