@@ -15,6 +15,10 @@ void write_char(FILE * file, char c) {
 	fwrite(&c, sizeof(char), 1, file);
 }
 
+double getFrequencyByte(int byte, const int total_bytes) {
+	return ((double)byte / (double)total_bytes) * 100;
+}
+
 void fill_random(FILE * file, const int count) {
 	unsigned char c = 0;
 	if (file == NULL) {
@@ -45,9 +49,12 @@ size_t length_int(int * array) {
 	return length;
 }
 
-void show_int_array(int * array, const int count) {
+void show_int_array(int * array, const int count, const int total_bytes) {
+	double frequency = 0.0f;
 	for (int i = 0; i < count; ++i) {
-		printf("[%d]\t= %d\n", i, array[i]);
+		// printf("%d\t%d\n", i, array[i]);
+		frequency = getFrequencyByte(array[i], total_bytes);
+		printf("%d\t%2.17f\n", i, frequency);
 	}
 }
 
@@ -55,6 +62,8 @@ int main(int argc, char const *argv[]) {
 	printf("The program has started...\n");
 
 	FILE *file_report = NULL;
+
+	// Инициализация массива и заполнение нулями
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
 	file_report = fopen(FILE_DOCX, "ab+");
 
@@ -62,16 +71,23 @@ int main(int argc, char const *argv[]) {
 	// fill_random(file_report, 150);
 
 	// Чтение и вывод бинарного значения из файла
-	int sym = 0, count_sym = 0;
+	int sym = 0, total_bytes = -1;
 	do {
 		sym = getc(file_report);
 		array_bytes[sym]++;
+		total_bytes++;
 		
 		// printf("[%d]\t= %d\n", count_sym++, sym);
 	} while(sym != EOF);
 
 	// Вывод массива
-	show_int_array(array_bytes, COUNT_BYTES);
+	show_int_array(array_bytes, COUNT_BYTES, total_bytes);
+
+	printf("total_bytes = %d\n", total_bytes);
+	printf("array_bytes[0] = %d\n", array_bytes[0]);
+
+	double frequency = getFrequencyByte(array_bytes[0], total_bytes);
+	printf("frequency = %5.16f\n", frequency);
 	
 	// Открыть файл как бинарный
 	// Считать количество байт в массив
