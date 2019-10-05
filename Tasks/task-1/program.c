@@ -16,6 +16,10 @@ void write_char(FILE * file, char c) {
 }
 
 double getFrequencyByte(int byte, const int total_bytes) {
+	if (total_bytes == 0) {
+		printf("Error! Devide by zero\n");
+		exit(-1);
+	}
 	return ((double)byte / (double)total_bytes) * 100;
 }
 
