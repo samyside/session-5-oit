@@ -11,18 +11,19 @@
 #define FILE_DOCX "Arh02/Text02.docx"
 #define FILE_TXT "Arh02/Text02.txt"
 
-void write_char(FILE * file, char c) {
-	fwrite(&c, sizeof(char), 1, file);
-}
-
-double getFrequencyByte(int byte, const int total_bytes) {
-	if (total_bytes == 0) {
-		printf("Error! Devide by zero\n");
-		exit(-1);
+FILE* open_file(const char *filename) {
+	FILE *file = NULL;
+	file = fopen(filename, "wb+");
+	if (file == NULL) {
+		printf("Error! Couldn't open file: '%s'\n", filename);
+		exit(ERROR_FILE_OPEN);
 	}
-	return ((double)byte / (double)total_bytes) * 100;
+	fprintf(file, "%s\n", filename);
+
+	return file;
 }
 
+// Запись в бинарный файл случайные значения
 void fill_random(FILE * file, const int count) {
 	unsigned char c = 0;
 	if (file == NULL) {
@@ -35,44 +36,32 @@ void fill_random(FILE * file, const int count) {
 	fclose(file);
 }
 
-unsigned char read_byte(FILE * file) {
-	unsigned char c = 0;
-
-	if (file == NULL) {
-		printf("Error! Couldn't open file. Program will be closed.\n");
-		exit(ERROR_FILE_OPEN);
+double get_frequency_byte(int byte, const int total_bytes) {
+	if (total_bytes == 0) {
+		printf("Error! Division by zero\n");
+		exit(-1);
 	}
-	fread(&c, sizeof(char), 1, file);
-
-	return c;
+	return ((double)byte / (double)total_bytes) * 100;
 }
 
-size_t length_int(int * array) {
-	int * temp_array = array;
-	size_t length = sizeof(temp_array) / sizeof(temp_array[0]);
-	return length;
-}
-
+//	Вывод всех элементов массива
 void show_int_array(int * array, const int count, const int total_bytes) {
 	double frequency = 0.0f;
 	for (int i = 0; i < count; ++i) {
 		// printf("%d\t%d\n", i, array[i]);
-		frequency = getFrequencyByte(array[i], total_bytes);
+		frequency = get_frequency_byte(array[i], total_bytes);
 		printf("%d\t%2.17f\n", i, frequency);
 	}
 }
 
 int main(int argc, char const *argv[]) {
-	printf("The program has started...\n");
+	printf("Program has started...\n");
 
 	FILE *file_report = NULL;
 
 	// Инициализация массива и заполнение нулями
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
 	file_report = fopen(FILE_DOCX, "ab+");
-
-	// Запись в бинарный файл случайные значения
-	// fill_random(file_report, 150);
 
 	// Чтение и вывод бинарного значения из файла
 	int sym = 0, total_bytes = -1;
@@ -85,14 +74,14 @@ int main(int argc, char const *argv[]) {
 	} while(sym != EOF);
 
 	// Вывод массива
-	show_int_array(array_bytes, COUNT_BYTES, total_bytes);
+	// show_int_array(array_bytes, COUNT_BYTES, total_bytes);
 
 	printf("total_bytes = %d\n", total_bytes);
-	printf("array_bytes[0] = %d\n", array_bytes[0]);
 
-	double frequency = getFrequencyByte(array_bytes[0], total_bytes);
-	printf("frequency = %5.16f\n", frequency);
-	
+	FILE *file_output = NULL;
+	file_output = open_file("output.db");
+	fclose(file_output);
+
 	// Открыть файл как бинарный
 	// Считать количество байт в массив
 	// 1) Имя файла. Tip: константа
@@ -102,8 +91,9 @@ int main(int argc, char const *argv[]) {
 	// H = array[i] / all_bytes * 100
 	// 6) Вычислить величину энтропии
 	// ???
-	// Создать отчет по обработанному файлу (File02.tab)
+	// Создать отчет по обработанному файлу (ext02.tab)
 	// Создать новый файл и записать в него все полученные данные
 
+	printf("Program finished...\n");
 	return 0;
 }
