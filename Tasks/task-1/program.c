@@ -54,6 +54,12 @@ void show_int_array(int * array, const int count, const int total_bytes) {
 	}
 }
 
+//	Подсчет всех байтов в файле
+// 	Запись числа в файл отчета
+int file_size(FILE *file, int *array) {
+	
+}
+
 int main(int argc, char const *argv[]) {
 	printf("Program has started...\n");
 
@@ -69,8 +75,6 @@ int main(int argc, char const *argv[]) {
 		sym = getc(file_report);
 		array_bytes[sym]++;
 		total_bytes++;
-		
-		// printf("[%d]\t= %d\n", count_sym++, sym);
 	} while(sym != EOF);
 
 	// Вывод массива
