@@ -11,6 +11,15 @@
 #define FILE_DOCX "Arh02/Text02.docx"
 #define FILE_TXT "Arh02/Text02.txt"
 
+//	Подсчет всех байтов в файле
+// 	Запись числа в файл отчета
+int fsize(FILE *file) {
+	fseek(file, 0L, SEEK_END);
+	int size = ftell(file);
+	rewind(file);
+	return size;
+}
+
 FILE* open_file(const char *filename) {
 	FILE *file = NULL;
 	file = fopen(filename, "wb+");
@@ -54,37 +63,35 @@ void show_int_array(int * array, const int count, const int total_bytes) {
 	}
 }
 
-//	Подсчет всех байтов в файле
-// 	Запись числа в файл отчета
-int file_size(FILE *file, int *array) {
-	
+//	Чтение и вывод бинарного значения из файла
+void frequency_bytes(FILE * file, int * array_bytes) {
+	int symbol = 0;
+	do {
+		symbol = getc(file);
+		array_bytes[symbol]++;
+	} while(symbol != EOF);
 }
 
 int main(int argc, char const *argv[]) {
 	printf("Program has started...\n");
 
 	FILE *file_report = NULL;
-
+	file_report = fopen(FILE_DOCX, "ab+");
 	// Инициализация массива и заполнение нулями
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
-	file_report = fopen(FILE_DOCX, "ab+");
-
-	// Чтение и вывод бинарного значения из файла
-	int sym = 0, total_bytes = -1;
-	do {
-		sym = getc(file_report);
-		array_bytes[sym]++;
-		total_bytes++;
-	} while(sym != EOF);
-
-	// Вывод массива
-	// show_int_array(array_bytes, COUNT_BYTES, total_bytes);
-
-	printf("total_bytes = %d\n", total_bytes);
 
 	FILE *file_output = NULL;
 	file_output = open_file("output.db");
+	int size = fsize(file_report);
+
+	// fwrite(file_output, "%d\n", &temp_bytes);
+	fprintf(file_output, "%d\n\n", size);
+	frequency_bytes(file_report, array_bytes);
+	printf("test\n");
+
 	fclose(file_output);
+	// Вывод массива
+	// show_int_array(array_bytes, COUNT_BYTES, total_bytes);
 
 	// Открыть файл как бинарный
 	// Считать количество байт в массив
