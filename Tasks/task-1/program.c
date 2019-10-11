@@ -54,13 +54,15 @@ double get_frequency_byte(int byte, const int total_bytes) {
 }
 
 //	Вывод всех элементов массива
-void show_int_array(int * array, const int count, const int total_bytes) {
+void show_int_array(FILE *file_output, int * array, const int count, const int total_bytes) {
 	double frequency = 0.0f;
 	for (int i = 0; i < count; ++i) {
 		// printf("%d\t%d\n", i, array[i]);
 		frequency = get_frequency_byte(array[i], total_bytes);
 		printf("%d\t%2.17f\n", i, frequency);
+		fprintf(file_output, "%d\t%2.17f\n", i, frequency);
 	}
+	fprintf(file_output, "\n");
 }
 
 //	Чтение и вывод бинарного значения из файла
@@ -82,15 +84,16 @@ int main(int argc, char const *argv[]) {
 
 	FILE *file_report = NULL;
 	file_report = open_file("output.db");
+	int total_bytes = fsize(file_research);
 
 	// Запись размера файла
-	fprintf(file_report, "%d\n\n", fsize(file_research));
+	fprintf(file_report, "%d\n\n", total_bytes);
 	frequency_bytes(file_research, array_bytes);
+	show_int_array(file_report, array_bytes, COUNT_BYTES, total_bytes);
 
 	fclose(file_research);
 	fclose(file_report);
 	// Вывод массива
-	// show_int_array(array_bytes, COUNT_BYTES, total_bytes);
 
 	// Открыть файл как бинарный
 	// Считать количество байт в массив
