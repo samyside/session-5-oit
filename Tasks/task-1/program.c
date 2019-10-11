@@ -75,21 +75,20 @@ void frequency_bytes(FILE * file, int * array_bytes) {
 int main(int argc, char const *argv[]) {
 	printf("Program has started...\n");
 
-	FILE *file_report = NULL;
-	file_report = fopen(FILE_DOCX, "ab+");
+	FILE *file_research = NULL;
+	file_research = fopen(FILE_DOCX, "ab+");
 	// Инициализация массива и заполнение нулями
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
 
-	FILE *file_output = NULL;
-	file_output = open_file("output.db");
-	int size = fsize(file_report);
+	FILE *file_report = NULL;
+	file_report = open_file("output.db");
 
-	// fwrite(file_output, "%d\n", &temp_bytes);
-	fprintf(file_output, "%d\n\n", size);
-	frequency_bytes(file_report, array_bytes);
-	printf("test\n");
+	// Запись размера файла
+	fprintf(file_report, "%d\n\n", fsize(file_research));
+	frequency_bytes(file_research, array_bytes);
 
-	fclose(file_output);
+	fclose(file_research);
+	fclose(file_report);
 	// Вывод массива
 	// show_int_array(array_bytes, COUNT_BYTES, total_bytes);
 
