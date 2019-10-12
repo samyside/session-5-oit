@@ -5,11 +5,6 @@
 #define ERROR_FILE_OPEN -3
 #define FILENAME "output.db"
 #define COUNT_BYTES 256
-#define FILE_BMP "Arh02/Pic02.bpm"
-#define FILE_JPG "Arh02/Pic02.jpg"
-#define FILE_DOC "Arh02/Text02.doc"
-#define FILE_DOCX "Arh02/Text02.docx"
-#define FILE_TXT "Arh02/Text02.txt"
 
 //	Подсчет всех байтов в файле
 // 	Запись числа в файл отчета
@@ -22,12 +17,16 @@ int fsize(FILE *file) {
 
 FILE* open_file(const char *filename) {
 	FILE *file = NULL;
+
 	file = fopen(filename, "wb+");
 	if (file == NULL) {
-		printf("Error! Couldn't open file: '%s'\n", filename);
+		printf("Error in open_file();\n\tCouldn't open file: '%s'\n", filename);
 		exit(ERROR_FILE_OPEN);
 	}
 	fprintf(file, "%s\n", filename);
+
+	// Запись размера файла во вторую строку
+
 
 	return file;
 }
@@ -47,7 +46,7 @@ void fill_random(FILE * file, const int count) {
 
 double get_frequency_byte(int byte, const int total_bytes) {
 	if (total_bytes == 0) {
-		printf("Error! Division by zero\n");
+		printf("Error int get_frequency_byte();\nDivision by zero\n");
 		exit(-1);
 	}
 	return ((double)byte / (double)total_bytes) * 100;
@@ -74,25 +73,32 @@ void frequency_bytes(FILE * file, int * array_bytes) {
 	} while(symbol != EOF);
 }
 
-int main(int argc, char const *argv[]) {
-	printf("Program has started...\n");
-
+void research(const char *fname_research, const char *fname_report) {
+	FILE *file_report = NULL;
 	FILE *file_research = NULL;
-	file_research = fopen(FILE_DOCX, "ab+");
 	// Инициализация массива и заполнение нулями
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
+	
+	file_report = open_file(fname_report);
+	file_research = fopen(fname_research, "ab+");
+	if (NULL == file_research) {
+		printf("Error in research();\n\tFile couldn't open: \n");
+		exit(ERROR_FILE_OPEN);
+	}
 
-	FILE *file_report = NULL;
-	file_report = open_file("output.db");
 	int total_bytes = fsize(file_research);
 
-	// Запись размера файла
-	fprintf(file_report, "%d\n\n", total_bytes);
 	frequency_bytes(file_research, array_bytes);
 	show_int_array(file_report, array_bytes, COUNT_BYTES, total_bytes);
 
 	fclose(file_research);
 	fclose(file_report);
+}
+
+int main(int argc, char const *argv[]) {
+	printf("Program has started...\n");
+
+	research("Arh02/Text02.docx", "Arh02/Docx02.tab");
 	// Вывод массива
 
 	// Открыть файл как бинарный
