@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define ERROR_FILE_OPEN -3
 #define FILENAME "output.db"
 #define COUNT_BYTES 256
 
 //	Подсчет всех байтов в файле
-// 	Запись числа в файл отчета
 int fsize(FILE *file) {
 	fseek(file, 0L, SEEK_END);
 	int size = ftell(file);
@@ -17,8 +17,12 @@ int fsize(FILE *file) {
 
 FILE* open_file(const char *filename) {
 	FILE *file = NULL;
+	char path[80] = "Arh02/";
+	printf("open_file();01\n");
+	strcat(path, filename);
+	printf("path = %s\n", path);
 
-	file = fopen(filename, "wb+");
+	file = fopen(path, "wb+");
 	if (file == NULL) {
 		printf("Error in open_file();\n\tCouldn't open file: '%s'\n", filename);
 		exit(ERROR_FILE_OPEN);
@@ -26,7 +30,8 @@ FILE* open_file(const char *filename) {
 	fprintf(file, "%s\n", filename);
 
 	// Запись размера файла во вторую строку
-
+	// int size = fsize(file);
+	// fprintf(file, "%d\n", size);
 
 	return file;
 }
@@ -46,7 +51,7 @@ void fill_random(FILE * file, const int count) {
 
 double get_frequency_byte(int byte, const int total_bytes) {
 	if (total_bytes == 0) {
-		printf("Error int get_frequency_byte();\nDivision by zero\n");
+		printf("Error int get_frequency_byte();\n\tDivision by zero\n");
 		exit(-1);
 	}
 	return ((double)byte / (double)total_bytes) * 100;
@@ -74,19 +79,29 @@ void frequency_bytes(FILE * file, int * array_bytes) {
 }
 
 void research(const char *fname_research, const char *fname_report) {
+	char *path_research = 0;
+	strcat(path_research, fname_research);
+	printf("path_research = %s\n", path_research);
+
 	FILE *file_report = NULL;
 	FILE *file_research = NULL;
+	printf("research();\n");
 	// Инициализация массива и заполнение нулями
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
 	
+	char path[80] = "Arh02/";
+	strcat(path, fname_report);
 	file_report = open_file(fname_report);
 	file_research = fopen(fname_research, "ab+");
-	if (NULL == file_research) {
+	if (file_research == NULL) {
 		printf("Error in research();\n\tFile couldn't open: \n");
 		exit(ERROR_FILE_OPEN);
 	}
 
 	int total_bytes = fsize(file_research);
+	char temp_symbol = getc(file_research);
+	printf("temp_symbol = %c\n", temp_symbol);
+	printf("array_bytes = %d\n", *array_bytes);
 
 	frequency_bytes(file_research, array_bytes);
 	show_int_array(file_report, array_bytes, COUNT_BYTES, total_bytes);
@@ -98,7 +113,7 @@ void research(const char *fname_research, const char *fname_report) {
 int main(int argc, char const *argv[]) {
 	printf("Program has started...\n");
 
-	research("Arh02/Text02.docx", "Arh02/Docx02.tab");
+	research("Text02.docx", "Docx02.tab");
 	// Вывод массива
 
 	// Открыть файл как бинарный
