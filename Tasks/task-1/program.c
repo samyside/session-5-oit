@@ -3,24 +3,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define DIVISION_BY_ZERO -2
 #define ERROR_FILE_OPEN -3
-#define FILENAME "output.db"
 #define COUNT_BYTES 256
 
 //	Подсчет всех байтов в файле
 int fsize(FILE *file) {
+	const long int current_position = ftell(file);
 	fseek(file, 0L, SEEK_END);
 	int size = ftell(file);
-	rewind(file);
+	fseek(file, current_position, SEEK_SET);
 	return size;
 }
 
+//	Открыть файл отчёта
 FILE* open_file(const char *filename) {
 	FILE *file = NULL;
 	char path[80] = "Arh02/";
-	printf("open_file();01\n");
 	strcat(path, filename);
-	printf("path = %s\n", path);
+	printf("path_report = %s\n", path);
 
 	file = fopen(path, "wb+");
 	if (file == NULL) {
@@ -29,30 +30,14 @@ FILE* open_file(const char *filename) {
 	}
 	fprintf(file, "%s\n", filename);
 
-	// Запись размера файла во вторую строку
-	// int size = fsize(file);
-	// fprintf(file, "%d\n", size);
-
 	return file;
 }
 
-// Запись в бинарный файл случайные значения
-void fill_random(FILE * file, const int count) {
-	unsigned char c = 0;
-	if (file == NULL) {
-		file = fopen(FILENAME, "wb+");
-	}
-	for (int i = 0; i < count; ++i) {
-		c = rand() % 100;
-		fwrite(&c, sizeof(char), 1, file);
-	}
-	fclose(file);
-}
-
+//	Вычисляет значение частоты байта в файле
 double get_frequency_byte(int byte, const int total_bytes) {
 	if (total_bytes == 0) {
 		printf("Error int get_frequency_byte();\n\tDivision by zero\n");
-		exit(-1);
+		exit(DIVISION_BY_ZERO);
 	}
 	return ((double)byte / (double)total_bytes) * 100;
 }
@@ -61,9 +46,9 @@ double get_frequency_byte(int byte, const int total_bytes) {
 void show_int_array(FILE *file_output, int * array, const int count, const int total_bytes) {
 	double frequency = 0.0f;
 	for (int i = 0; i < count; ++i) {
-		// printf("%d\t%d\n", i, array[i]);
 		frequency = get_frequency_byte(array[i], total_bytes);
-		printf("%d\t%2.17f\n", i, frequency);
+		// Вывод полученной частоты байта в консоль
+		// printf("%d\t%2.17f\n", i, frequency);
 		fprintf(file_output, "%d\t%2.17f\n", i, frequency);
 	}
 	fprintf(file_output, "\n");
@@ -78,21 +63,24 @@ void frequency_bytes(FILE * file, int * array_bytes) {
 	} while(symbol != EOF);
 }
 
+// Основная функция исследования
 void research(const char *fname_research, const char *fname_report) {
-	char *path_research = 0;
+	char path_research[40] = "Arh02/";
 	strcat(path_research, fname_research);
-	printf("path_research = %s\n", path_research);
 
 	FILE *file_report = NULL;
 	FILE *file_research = NULL;
-	printf("research();\n");
 	// Инициализация массива и заполнение нулями
+	// Доступно в компиляторе GCC в стандарте C11
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
 	
-	char path[80] = "Arh02/";
-	strcat(path, fname_report);
 	file_report = open_file(fname_report);
-	file_research = fopen(fname_research, "ab+");
+	file_research = fopen(path_research, "ab+");
+
+	// Запись размера файла
+	int size = fsize(file_research);
+	fprintf(file_report, "%d\n\n", size);
+
 	if (file_research == NULL) {
 		printf("Error in research();\n\tFile couldn't open: \n");
 		exit(ERROR_FILE_OPEN);
@@ -100,8 +88,6 @@ void research(const char *fname_research, const char *fname_report) {
 
 	int total_bytes = fsize(file_research);
 	char temp_symbol = getc(file_research);
-	printf("temp_symbol = %c\n", temp_symbol);
-	printf("array_bytes = %d\n", *array_bytes);
 
 	frequency_bytes(file_research, array_bytes);
 	show_int_array(file_report, array_bytes, COUNT_BYTES, total_bytes);
@@ -113,20 +99,11 @@ void research(const char *fname_research, const char *fname_report) {
 int main(int argc, char const *argv[]) {
 	printf("Program has started...\n");
 
+	research("Pic02.bmp", "Bmp02.tab");
+	research("Pic02.jpg", "Jpg02.tab");
+	research("Text02.doc", "Doc02.tab");
 	research("Text02.docx", "Docx02.tab");
-	// Вывод массива
-
-	// Открыть файл как бинарный
-	// Считать количество байт в массив
-	// 1) Имя файла. Tip: константа
-	// 2) all_bytes = Получить кол-во байт в файле
-	// 
-	// 4) Вычислить частотность каждого байта в файле
-	// H = array[i] / all_bytes * 100
-	// 6) Вычислить величину энтропии
-	// ???
-	// Создать отчет по обработанному файлу (ext02.tab)
-	// Создать новый файл и записать в него все полученные данные
+	research("Text02.txt", "Txt02.tab");
 
 	printf("Program finished...\n");
 	return 0;

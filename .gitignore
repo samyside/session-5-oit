@@ -53,3 +53,4 @@ dkms.conf
 
 # Testing files
 /Tasks/task-1/output.db
+*.tab
