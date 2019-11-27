@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <conio.h>
+//#include <conio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -76,6 +76,11 @@ void research(const char *fname_research, const char *fname_report) {
 	
 	file_report = open_file(fname_report);
 	file_research = fopen(path_research, "ab+");
+
+	//debug segmentation 
+	int testint = 234;
+	int *testpoint;
+	testpoint = &testint;
 
 	// Запись размера файла
 	int size = fsize(file_research);
