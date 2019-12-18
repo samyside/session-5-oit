@@ -2,10 +2,13 @@
 //#include <conio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "math.h"
 
 #define DIVISION_BY_ZERO -2
 #define ERROR_FILE_OPEN -3
 #define COUNT_BYTES 256
+
+int entropy = 0;
 
 //	Подсчет всех байтов в файле
 int fsize(FILE *file) {
@@ -43,9 +46,9 @@ double get_frequency_byte(int byte, const int total_bytes) {
 }
 
 //	Вывод всех элементов массива
-void show_int_array(FILE *file_output, int * array, const int count, const int total_bytes) {
+void show_int_array(FILE *file_output, int *array, const int total_bytes) {
 	double frequency = 0.0f;
-	for (int i = 0; i < count; ++i) {
+	for (int i = 0; i < COUNT_BYTES; ++i) {
 		frequency = get_frequency_byte(array[i], total_bytes);
 		// Вывод полученной частоты байта в консоль
 		// printf("%d\t%2.17f\n", i, frequency);
@@ -63,9 +66,17 @@ void frequency_bytes(FILE * file, int * array_bytes) {
 	} while(symbol != EOF);
 }
 
+int getEntropy(int *array) {
+	double entropy = 0;
+	for (int i = 0; i < COUNT_BYTES; ++i) {
+		entropy += array[i] * log2(array[i]);
+	}
+	return entropy;
+}
+
 // Основная функция исследования
 void research(const char *fname_research, const char *fname_report) {
-	char path_research[40] = "Arh02/";
+	char path_research[20] = "Arh02/";
 	strcat(path_research, fname_research);
 
 	FILE *file_report = NULL;
@@ -95,7 +106,11 @@ void research(const char *fname_research, const char *fname_report) {
 	char temp_symbol = getc(file_research);
 
 	frequency_bytes(file_research, array_bytes);
-	show_int_array(file_report, array_bytes, COUNT_BYTES, total_bytes);
+	show_int_array(file_report, array_bytes, total_bytes);
+
+	// write entropy result
+	double entropy_result = getEntropy(array_bytes);
+	fprintf(file_report, "%f\n", entropy_result);
 
 	fclose(file_research);
 	fclose(file_report);
