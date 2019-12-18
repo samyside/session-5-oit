@@ -67,10 +67,9 @@ void show_int_array(FILE *file_output, int *array, const int total_bytes, double
 //	Чтение и вывод бинарного значения из файла
 void frequency_bytes(FILE *file, int *array_bytes) {
 	int symbol = 0;
-	do {
-		symbol = getc(file);
+	while((symbol = getc(file)) != EOF) {
 		array_bytes[symbol]++;
-	} while(symbol != EOF);
+	}
 }
 
 int getEntropy(int *array) {
@@ -97,11 +96,6 @@ void research(const char *fname_research, const char *fname_report) {
 	
 	file_report = open_file(fname_report);
 	file_research = fopen(path_research, "ab+");
-
-	//debug segmentation 
-	int testint = 234;
-	int *testpoint;
-	testpoint = &testint;
 
 	// Запись размера файла
 	int size = fsize(file_research);
