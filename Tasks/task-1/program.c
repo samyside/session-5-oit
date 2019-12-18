@@ -8,8 +8,6 @@
 #define ERROR_FILE_OPEN -3
 #define COUNT_BYTES 256
 
-int entropy = 0;
-
 //	Подсчет всех байтов в файле
 int fsize(FILE *file) {
 	const long int current_position = ftell(file);
@@ -46,19 +44,28 @@ double get_frequency_byte(int byte, const int total_bytes) {
 }
 
 //	Вывод всех элементов массива
-void show_int_array(FILE *file_output, int *array, const int total_bytes) {
+void show_int_array(FILE *file_output, int *array, const int total_bytes, double *entropy) {
 	double frequency = 0.0f;
+	printf("1: show_int_array(entropy) = %f\n", *entropy);
 	for (int i = 0; i < COUNT_BYTES; ++i) {
 		frequency = get_frequency_byte(array[i], total_bytes);
 		// Вывод полученной частоты байта в консоль
 		// printf("%d\t%2.17f\n", i, frequency);
+		
+		// Вычисление энтропии по формуле Шеннона
+		// при этом каждый раз (всего 256) значение
+		// будет прибавляться
+		*entropy += frequency * log2(frequency);
+
 		fprintf(file_output, "%d\t%2.17f\n", i, frequency);
 	}
+	*entropy *= -1;
+	printf("2: show_int_array(entropy) = %f\n", *entropy);
 	fprintf(file_output, "\n");
 }
 
 //	Чтение и вывод бинарного значения из файла
-void frequency_bytes(FILE * file, int * array_bytes) {
+void frequency_bytes(FILE *file, int *array_bytes) {
 	int symbol = 0;
 	do {
 		symbol = getc(file);
@@ -69,7 +76,10 @@ void frequency_bytes(FILE * file, int * array_bytes) {
 int getEntropy(int *array) {
 	double entropy = 0;
 	for (int i = 0; i < COUNT_BYTES; ++i) {
-		entropy += array[i] * log2(array[i]);
+		printf("%d = %d\n", i, array[i]);
+
+
+		entropy += (double)array[i] * (double)log2(array[i]);
 	}
 	return entropy;
 }
@@ -105,12 +115,18 @@ void research(const char *fname_research, const char *fname_report) {
 	int total_bytes = fsize(file_research);
 	char temp_symbol = getc(file_research);
 
-	frequency_bytes(file_research, array_bytes);
-	show_int_array(file_report, array_bytes, total_bytes);
-
 	// write entropy result
-	double entropy_result = getEntropy(array_bytes);
-	fprintf(file_report, "%f\n", entropy_result);
+	double entropy = 0.0f;
+	double *ptr_entropy;
+	ptr_entropy = &entropy;
+
+	printf("research(entropy) = %f\n", *ptr_entropy);
+
+	frequency_bytes(file_research, array_bytes);
+	show_int_array(file_report, array_bytes, total_bytes, ptr_entropy);
+
+	// Запись значения энтропии в файл отчета
+	fprintf(file_report, "%f\n", entropy);
 
 	fclose(file_research);
 	fclose(file_report);
