@@ -42,7 +42,7 @@ void bubble_sort(double *array) {
 		for (i = 0; i < COUNT_BYTES; ++i) {
 			for (j = COUNT_BYTES - 1; j > i; --j) {
 				if (array[j] < array[j-1]) {
-				int t = array[j - 1];
+				double t = array[j - 1];
 				array[j - 1] = array[j];
 				array[j] = t;
 			}
@@ -70,7 +70,7 @@ void show_int_array(FILE *file_output, int *array_b, double *array_f, const int 
 		// Сохранение частотности текущего байта
 		// в общий массив для дальнейшего анализа
 		array_f[i] = frequency;
-		printf("array_f[%d]\t= %f\n", i, frequency);
+		printf("array_f[%d]\t= %3.17f\n", i, array_f[i]);
 		
 		// Вычисление энтропии по формуле Шеннона
 		// при этом каждый раз (всего 256) значение
@@ -140,6 +140,10 @@ void research(const char *fname_research, const char *fname_report) {
 
 	frequency_bytes(file_research, array_bytes);
 	show_int_array(file_report, array_bytes, array_frequecies, total_bytes, ptr_entropy);
+	for(int i=0; i < 256; ++i) {
+		printf("array_frequecies[%d] : %f\n", i, array_frequecies[i]);
+	}
+
 	bubble_sort(array_frequecies);
 	write_in_report(file_report, array_frequecies);
 
