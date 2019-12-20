@@ -8,6 +8,8 @@
 #define ERROR_FILE_OPEN -3
 #define COUNT_BYTES 256
 
+double get_entropy(double);
+
 //	Подсчет всех байтов в файле
 int fsize(FILE *file) {
 	const long int current_position = ftell(file);
@@ -34,6 +36,20 @@ FILE* open_file(const char *filename) {
 	return file;
 }
 
+// Сортировака массива методом пузырька
+void bubble_sort(double *array) {
+	int i, j;
+		for (i = 0; i < COUNT_BYTES; ++i) {
+			for (j = COUNT_BYTES - 1; j > i; --j) {
+				if (array[j] < array[j-1]) {
+				int t = array[j - 1];
+				array[j - 1] = array[j];
+				array[j] = t;
+			}
+		}
+	}
+}
+
 //	Вычисляет значение частоты байта в файле
 double get_frequency_byte(int byte, const int total_bytes) {
 	if (total_bytes == 0) {
@@ -44,43 +60,51 @@ double get_frequency_byte(int byte, const int total_bytes) {
 }
 
 //	Вывод всех элементов массива
-void show_int_array(FILE *file_output, int *array, const int total_bytes, double *entropy) {
+void show_int_array(FILE *file_output, int *array_b, double *array_f, const int total_bytes, double *entropy) {
 	double frequency = 0.0f;
-	printf("1: show_int_array(entropy) = %f\n", *entropy);
 	for (int i = 0; i < COUNT_BYTES; ++i) {
-		frequency = get_frequency_byte(array[i], total_bytes);
-		// Вывод полученной частоты байта в консоль
-		// printf("%d\t%2.17f\n", i, frequency);
+		// Сохранение частотности текущего байта
+		// во временную переменную
+		frequency = get_frequency_byte(array_b[i], total_bytes);
+		
+		// Сохранение частотности текущего байта
+		// в общий массив для дальнейшего анализа
+		array_f[i] = frequency;
+		printf("array_f[%d]\t= %f\n", i, frequency);
 		
 		// Вычисление энтропии по формуле Шеннона
 		// при этом каждый раз (всего 256) значение
 		// будет прибавляться
-		*entropy += frequency * log2(frequency);
-
-		fprintf(file_output, "%d\t%2.17f\n", i, frequency);
+		*entropy += get_entropy(frequency);
 	}
-	*entropy *= -1;
-	printf("2: show_int_array(entropy) = %f\n", *entropy);
 	fprintf(file_output, "\n");
 }
 
 //	Чтение и вывод бинарного значения из файла
-void frequency_bytes(FILE *file, int *array_bytes) {
+void frequency_bytes(FILE *file, int *array) {
 	int symbol = 0;
 	while((symbol = getc(file)) != EOF) {
-		array_bytes[symbol]++;
+		array[symbol]++;
 	}
 }
 
-int getEntropy(int *array) {
-	double entropy = 0;
-	for (int i = 0; i < COUNT_BYTES; ++i) {
-		printf("%d = %d\n", i, array[i]);
-
-
-		entropy += (double)array[i] * (double)log2(array[i]);
+double get_entropy(double frequency) {
+	double temp_freq = 0.0f;
+	if(frequency == 0) {
+		return 0;
+	} else if(frequency < 0) {
+		printf("frequency < 0. %f\n", frequency);
+		return 0;
+	} else {
+		temp_freq = -(frequency * log2(frequency));
+		return temp_freq;
 	}
-	return entropy;
+}
+
+void write_in_report(FILE *file, double *array) {
+	for(int i=0; i < COUNT_BYTES; ++i) {
+		fprintf(file, "%d\t%2.17f\n", i, array[i]);
+	}
 }
 
 // Основная функция исследования
@@ -93,6 +117,7 @@ void research(const char *fname_research, const char *fname_report) {
 	// Инициализация массива и заполнение нулями
 	// Доступно в компиляторе GCC в стандарте C11
 	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
+	double array_frequecies[COUNT_BYTES] = {[0 ... 255] = 0.0f};
 	
 	file_report = open_file(fname_report);
 	file_research = fopen(path_research, "ab+");
@@ -105,7 +130,6 @@ void research(const char *fname_research, const char *fname_report) {
 		printf("Error in research();\n\tFile couldn't open: \n");
 		exit(ERROR_FILE_OPEN);
 	}
-
 	int total_bytes = fsize(file_research);
 	char temp_symbol = getc(file_research);
 
@@ -114,10 +138,10 @@ void research(const char *fname_research, const char *fname_report) {
 	double *ptr_entropy;
 	ptr_entropy = &entropy;
 
-	printf("research(entropy) = %f\n", *ptr_entropy);
-
 	frequency_bytes(file_research, array_bytes);
-	show_int_array(file_report, array_bytes, total_bytes, ptr_entropy);
+	show_int_array(file_report, array_bytes, array_frequecies, total_bytes, ptr_entropy);
+	bubble_sort(array_frequecies);
+	write_in_report(file_report, array_frequecies);
 
 	// Запись значения энтропии в файл отчета
 	fprintf(file_report, "%f\n", entropy);
