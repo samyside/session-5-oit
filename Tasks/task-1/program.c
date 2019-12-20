@@ -56,7 +56,7 @@ double get_frequency_byte(int byte, const int total_bytes) {
 		printf("Error int get_frequency_byte();\n\tDivision by zero\n");
 		exit(DIVISION_BY_ZERO);
 	}
-	return ((double)byte / (double)total_bytes) * 100;
+	return ((double)byte / (double)total_bytes);
 }
 
 //	Вывод всех элементов массива
@@ -70,10 +70,8 @@ void show_int_array(FILE *file_output, int *array_b, double *array_f, const int 
 		// Сохранение частотности текущего байта
 		// в общий массив для дальнейшего анализа
 		array_f[i] = frequency;
-		printf("array_f[%d]\t= %3.17f\n", i, array_f[i]);
 		
-		// Вычисление энтропии по формуле Шеннона
-		// при этом каждый раз (всего 256) значение
+		// Суммирование всех значений энтропии
 		// будет прибавляться
 		*entropy += get_entropy(frequency);
 	}
@@ -88,6 +86,7 @@ void frequency_bytes(FILE *file, int *array) {
 	}
 }
 
+// Вычисление энтропии по формуле Шеннона
 double get_entropy(double frequency) {
 	double temp_freq = 0.0f;
 	if(frequency == 0) {
@@ -96,11 +95,12 @@ double get_entropy(double frequency) {
 		printf("frequency < 0. %f\n", frequency);
 		return 0;
 	} else {
-		temp_freq = -(frequency * log2(frequency));
+		temp_freq = frequency * log2(frequency);
 		return temp_freq;
 	}
 }
 
+// Запись в файл отчета (*.tab)
 void write_in_report(FILE *file, double *array) {
 	for(int i=0; i < COUNT_BYTES; ++i) {
 		fprintf(file, "%d\t%2.17f\n", i, array[i]);
@@ -144,10 +144,12 @@ void research(const char *fname_research, const char *fname_report) {
 		printf("array_frequecies[%d] : %f\n", i, array_frequecies[i]);
 	}
 
-	bubble_sort(array_frequecies);
+	// bubble_sort(array_frequecies);
 	write_in_report(file_report, array_frequecies);
 
 	// Запись значения энтропии в файл отчета
+	entropy = entropy * -1.0f;
+	printf("entropy = %f\n", entropy);
 	fprintf(file_report, "%f\n", entropy);
 
 	fclose(file_research);
