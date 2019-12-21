@@ -35,6 +35,7 @@
 *.i*86
 *.x86_64
 *.hex
+tasks/task-1/prog
 
 # Debug files
 *.dSYM/
