@@ -2,16 +2,19 @@
 #include <math.h>
 #include <stdlib.h>
 
+#define COUNT_BYTES 256
+
 void research(char*, char*);
 void write_header(FILE*, char*);
 void write_fsize(FILE*, int);
-void write_frequency();
+void write_frequency(FILE*, float*);
 void write_entropy(FILE*, float);
 FILE* open_file(char*);
 FILE* create_file(char*);
 void save_array_frequency(FILE*, float*, const int);
 float get_entropy(float*);
 int get_total_bytes(FILE*);
+void sort_bubble(float*);
 
 int main(int argc, char const *argv[]) {
 	research("arh02/Pic02.bmp", "arh02/bmp02.tab");
@@ -27,7 +30,7 @@ int main(int argc, char const *argv[]) {
 void research(char *filename_in, char *filename_out) {
 	FILE *file_research = open_file(filename_in);
 	FILE *file_report = create_file(filename_out);
-	float array_frequency[256] = {[0 ... 255] = 0};
+	float array_frequency[COUNT_BYTES] = {[0 ... 255] = 0};
 	float entropy = 0.0f;
 
 	write_header(file_report, filename_in);
@@ -36,6 +39,7 @@ void research(char *filename_in, char *filename_out) {
 
 	save_array_frequency(file_research, array_frequency, total_bytes);
 	// TODO sort array_frequency[]
+	sort_bubble(array_frequency);
 	write_frequency(file_report, array_frequency);
 
 	entropy = get_entropy(array_frequency);
@@ -69,7 +73,7 @@ int get_total_bytes(FILE *file) {
 // исследуемого файла
 void save_array_frequency(FILE *file, float *array_frequency, const int total_bytes) {
 	// Зполнение массива нулями. Стандарт C11
-	int array_bytes[256] = {[0 ... 255] = 0};
+	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
 	int symbol = 0;
 
 	// Считывя файл, записываем количество каждого байта в файле
@@ -77,14 +81,14 @@ void save_array_frequency(FILE *file, float *array_frequency, const int total_by
 		array_bytes[symbol]++;
 	}
 
-	for(int i=0; i < 256; ++i) {
+	for(int i=0; i < COUNT_BYTES; ++i) {
 		array_frequency[i] = (float)array_bytes[i] / (float) total_bytes;
 	}
 }
 
 // Запись массива частотности в указанный файл
 void write_frequency(FILE *file, float *array_frequency) {
-	for(int i=0; i < 256; ++i) {
+	for(int i=0; i < COUNT_BYTES; ++i) {
 		fprintf(file, "%d\t%f\n", i, array_frequency[i]);
 	}
 }
@@ -92,7 +96,7 @@ void write_frequency(FILE *file, float *array_frequency) {
 // Вычисление энтропии на основе частоты байтов
 float get_entropy(float *array_frequency) {
 	float entropy = 0.0f;
-	for(int i=0; i < 256; ++i) {
+	for(int i=0; i < COUNT_BYTES; ++i) {
 		entropy += array_frequency[i] * log2(array_frequency[i]);
 	}
 	return -entropy;
@@ -123,4 +127,18 @@ FILE* create_file(char *filename) {
 		exit(-1);
 	}
 	return file;
+}
+
+// Сортировка массива частотности
+void sort_bubble(float *array) {
+	int i, j;
+	for(i = 0; i < COUNT_BYTES; ++i) {
+		for(j = COUNT_BYTES - 1; j > i; --j) {
+			if(array[j] < array[j-1]) {
+				float temp = array[j - 1];
+				array[j - 1] = array[j];
+				array[j] = temp;
+			}
+		}
+	}
 }
