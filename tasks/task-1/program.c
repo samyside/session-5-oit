@@ -4,6 +4,11 @@
 
 #define COUNT_BYTES 256
 
+typedef struct Frequency {
+	int id;
+	float value;
+} Frequency;
+
 void research(char*, char*);
 void write_header(FILE*, char*);
 void write_fsize(FILE*, int);
@@ -14,7 +19,8 @@ FILE* create_file(char*);
 void save_array_frequency(FILE*, float*, const int);
 float get_entropy(float*);
 int get_total_bytes(FILE*);
-void sort_bubble(float*);
+void sort_array(float*);
+void save_freq(FILE*, Frequency*, const int);
 
 int main(int argc, char const *argv[]) {
 	research("arh02/Pic02.bmp", "arh02/bmp02.tab");
@@ -33,13 +39,21 @@ void research(char *filename_in, char *filename_out) {
 	float array_frequency[COUNT_BYTES] = {[0 ... 255] = 0};
 	float entropy = 0.0f;
 
-	write_header(file_report, filename_in);
 	const int total_bytes = get_total_bytes(file_research);
+
+	// trying to add Frequency
+	Frequency freq[COUNT_BYTES];
+	save_freq(file_research, freq, total_bytes);
+	for(int i=0; i<COUNT_BYTES; ++i) {
+		freq[i].id = i;
+	}
+
+	write_header(file_report, filename_in);
+	// const int total_bytes = get_total_bytes(file_research);
 	write_fsize(file_report, total_bytes);
 
 	save_array_frequency(file_research, array_frequency, total_bytes);
-	// TODO sort array_frequency[]
-	sort_bubble(array_frequency);
+	sort_array(array_frequency);
 	write_frequency(file_report, array_frequency);
 
 	entropy = get_entropy(array_frequency);
@@ -47,6 +61,22 @@ void research(char *filename_in, char *filename_out) {
 
 	fclose(file_research);
 	fclose(file_report);
+}
+
+// Вычисление и сохранение массива частотности байтов
+// исследуемого файла
+void save_freq(FILE *file, Frequency *array_freq, const int total_bytes) {
+	int array_bytes[COUNT_BYTES] = {[0 ... 255] = 0};
+	int symbol = 0;
+
+	// Считывя файл, записываем количество каждого байта в файле
+	while((symbol = getc(file)) != EOF) {
+		array_bytes[symbol]++;
+	}
+
+	for(int i=0; i < COUNT_BYTES; ++i) {
+		array_freq[i].value = (float)array_bytes[i] / (float) total_bytes;
+	}
 }
 
 // Запись в указанный файл имя исследуемого файла
@@ -130,7 +160,7 @@ FILE* create_file(char *filename) {
 }
 
 // Сортировка массива частотности
-void sort_bubble(float *array) {
+void sort_array(float *array) {
 	int i, j;
 	for(i = 0; i < COUNT_BYTES; ++i) {
 		for(j = COUNT_BYTES - 1; j > i; --j) {
