@@ -21,6 +21,7 @@ float get_entropy(float*);
 int get_total_bytes(FILE*);
 void sort_array(float*);
 void save_freq(FILE*, Frequency*, const int);
+void show_freq(Frequency**);
 
 int main(int argc, char const *argv[]) {
 	research("arh02/Pic02.bmp", "arh02/bmp02.tab");
@@ -43,10 +44,11 @@ void research(char *filename_in, char *filename_out) {
 
 	// trying to add Frequency
 	Frequency freq[COUNT_BYTES];
-	save_freq(file_research, freq, total_bytes);
 	for(int i=0; i<COUNT_BYTES; ++i) {
 		freq[i].id = i;
 	}
+	save_freq(file_research, freq, total_bytes);
+	show_freq(freq);
 
 	write_header(file_report, filename_in);
 	// const int total_bytes = get_total_bytes(file_research);
@@ -76,6 +78,12 @@ void save_freq(FILE *file, Frequency *array_freq, const int total_bytes) {
 
 	for(int i=0; i < COUNT_BYTES; ++i) {
 		array_freq[i].value = (float)array_bytes[i] / (float) total_bytes;
+	}
+}
+
+void show_freq(Frequency **array_freq) {
+	for(int i=0; i<COUNT_BYTES; ++i) {
+		printf("[%d]\t= %f\n", array_freq[i]->id, array_freq[i]->value);
 	}
 }
 
