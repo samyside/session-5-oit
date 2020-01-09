@@ -21,7 +21,8 @@ float get_entropy(float*);
 int get_total_bytes(FILE*);
 void sort_array(float*);
 void save_freq(FILE*, Frequency*, const int);
-void show_freq(Frequency**);
+void show_freq(Frequency*);
+void sort_array_freq(Frequency*);
 
 int main(int argc, char const *argv[]) {
 	research("arh02/Pic02.bmp", "arh02/bmp02.tab");
@@ -42,19 +43,21 @@ void research(char *filename_in, char *filename_out) {
 
 	const int total_bytes = get_total_bytes(file_research);
 
-	// trying to add Frequency
 	Frequency freq[COUNT_BYTES];
-	for(int i=0; i<COUNT_BYTES; ++i) {
-		freq[i].id = i;
-	}
+	for(int i=0; i<COUNT_BYTES; ++i) freq[i].id = i;
+
 	save_freq(file_research, freq, total_bytes);
-	show_freq(freq);
 
 	write_header(file_report, filename_in);
 	// const int total_bytes = get_total_bytes(file_research);
 	write_fsize(file_report, total_bytes);
 
 	save_array_frequency(file_research, array_frequency, total_bytes);
+
+	// Пытаюсь заменить функцию сортировки
+	sort_array_freq(freq);
+	show_freq(freq);
+
 	sort_array(array_frequency);
 	write_frequency(file_report, array_frequency);
 
@@ -63,6 +66,21 @@ void research(char *filename_in, char *filename_out) {
 
 	fclose(file_research);
 	fclose(file_report);
+}
+
+// Сортировка массива частотности
+void sort_array_freq(Frequency *array) {
+	int i, j;
+	Frequency temp_freq;
+	for(i = 0; i < COUNT_BYTES; ++i) {
+		for(j = COUNT_BYTES - 1; j > i; --j) {
+			if(array[j].value > array[j-1].value) {
+				temp_freq = array[j-1];
+				array[j-1] = array[j];
+				array[j] = temp_freq;
+			}
+		}
+	}
 }
 
 // Вычисление и сохранение массива частотности байтов
@@ -81,9 +99,9 @@ void save_freq(FILE *file, Frequency *array_freq, const int total_bytes) {
 	}
 }
 
-void show_freq(Frequency **array_freq) {
+void show_freq(Frequency *array_freq) {
 	for(int i=0; i<COUNT_BYTES; ++i) {
-		printf("[%d]\t= %f\n", array_freq[i]->id, array_freq[i]->value);
+		printf("[i]= %d\t[id]=%d\t[value]= %f\n", i, array_freq[i].id, array_freq[i].value);
 	}
 }
 
