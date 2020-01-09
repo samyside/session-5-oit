@@ -36,6 +36,7 @@
 *.x86_64
 *.hex
 tasks/task-1/prog
+tasks/task-1/shennon
 
 # Debug files
 *.dSYM/
