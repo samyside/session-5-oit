@@ -51,7 +51,7 @@ void research(char *filename_in, char *filename_out) {
 
 	// Пытаюсь заменить функцию сортировки
 	sort_array_freq(freq);
-	show_freq(freq);
+	// show_freq(freq);
 
 	write_frequency(file_report, freq);
 
@@ -124,7 +124,9 @@ void save_array_frequency(FILE *file, Frequency *array_freq, const int total_byt
 // Запись массива частотности в указанный файл
 void write_frequency(FILE *file_output, Frequency *array_frequency) {
 	for(int i=0; i < COUNT_BYTES; ++i) {
-		fprintf(file_output, "%d\t%f\n", i, array_frequency[i].value);
+		if(array_frequency[i].value != 0.0) {
+			fprintf(file_output, "%d\t%1.16f\n", array_frequency[i].id, array_frequency[i].value);
+		}
 	}
 }
 
