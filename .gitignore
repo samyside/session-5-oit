@@ -54,5 +54,7 @@ Mkfile.old
 dkms.conf
 
 # Testing files
-/Tasks/task-1/output.db
+/tasks/task-1/output.db
+/tasks/task-5/program.cpp
 *.tab
+
